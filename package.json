@@ -1,0 +1,23 @@
+{
+  "name": "giovani-araujo-qa-automation",
+  "version": "1.0.0",
+  "description": "Projeto de automação QA com Selenium, Cucumber, Postman e Newman",
+  "scripts": {
+    "test": "cucumber-js",
+    "pretest:api": "node -e \"require('node:fs').mkdirSync('reports', { recursive: true })\"",
+    "test:api": "newman run postman/demoblaze-api.collection.json --environment postman/demoblaze-api.environment.json --reporters cli,junit --reporter-junit-export reports/newman-results.xml",
+    "pretest:api:mock": "node -e \"require('node:fs').mkdirSync('reports', { recursive: true })\"",
+    "test:api:mock": "node scripts/run-api-mock-tests.js",
+    "validate:ci": "node scripts/validate-project.js && cucumber-js --dry-run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@cucumber/cucumber": "^13.3.0",
+    "chai": "^4.3.7",
+    "newman": "^6.2.3",
+    "selenium-webdriver": "^4.51.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "217030a8-d95f-4928-9323-67fce776ec2e",
+  "name": "Demoblaze - QA",
+  "values": [
+    { "key": "apiUrl", "value": "https://api.demoblaze.com", "type": "default", "enabled": true },
+    { "key": "username", "value": "", "type": "default", "enabled": true },
+    { "key": "password", "value": "QaTest!12345", "type": "secret", "enabled": true },
+    { "key": "passwordEncoded", "value": "", "type": "secret", "enabled": true },
+    { "key": "invalidPasswordEncoded", "value": "", "type": "secret", "enabled": true },
+    { "key": "unknownUsername", "value": "", "type": "default", "enabled": true },
+    { "key": "authToken", "value": "", "type": "secret", "enabled": true },
+    { "key": "phoneId", "value": "1", "type": "default", "enabled": true },
+    { "key": "monitorId", "value": "10", "type": "default", "enabled": true },
+    { "key": "computerId", "value": "8", "type": "default", "enabled": true },
+    { "key": "monitorCartItemId", "value": "", "type": "secret", "enabled": true }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-11-18T19:00:00.000Z",
+  "_postman_exported_using": "Postman/11"
+}

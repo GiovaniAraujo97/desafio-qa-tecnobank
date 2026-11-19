@@ -1,0 +1,421 @@
+{
+  "info": {
+    "_postman_id": "ea67926f-d477-44ab-b05b-0559301dd93c",
+    "name": "Giovani Araujo - Demoblaze API",
+    "description": "Fluxo de cadastro, autenticação e gerenciamento do carrinho de compras.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Criar conta",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set('username', 'qa_' + Date.now() + '_' + Math.floor(Math.random() * 100000));",
+              "const password = pm.environment.get('password');",
+              "pm.environment.set('passwordEncoded', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(password)));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Contrato de sucesso do cadastro', function () { pm.expect(pm.response.json()).to.eql(''); });",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{passwordEncoded}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/signup",
+          "host": ["{{apiUrl}}"],
+          "path": ["signup"]
+        }
+      }
+    },
+    {
+      "name": "02 - Rejeitar cadastro duplicado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Contrato e mensagem de usuário duplicado', function () {",
+              "  const response = pm.response.json();",
+              "  pm.expect(response).to.have.property('errorMessage', 'This user already exist.');",
+              "});",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{passwordEncoded}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/signup",
+          "host": ["{{apiUrl}}"],
+          "path": ["signup"]
+        }
+      }
+    },
+    {
+      "name": "03 - Rejeitar login com senha inválida",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const password = pm.environment.get('password') + '_incorrect';",
+              "pm.environment.set('invalidPasswordEncoded', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(password)));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Contrato e mensagem de senha inválida', function () {",
+              "  pm.expect(pm.response.json()).to.have.property('errorMessage', 'Wrong password.');",
+              "});",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{invalidPasswordEncoded}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/login",
+          "host": ["{{apiUrl}}"],
+          "path": ["login"]
+        }
+      }
+    },
+    {
+      "name": "04 - Rejeitar login com usuário inexistente",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set('unknownUsername', 'qa_missing_' + Date.now() + '_' + Math.floor(Math.random() * 100000));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Contrato e mensagem de usuário inexistente', function () {",
+              "  pm.expect(pm.response.json()).to.have.property('errorMessage', 'User does not exist.');",
+              "});",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{unknownUsername}}\",\n  \"password\": \"{{passwordEncoded}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/login",
+          "host": ["{{apiUrl}}"],
+          "path": ["login"]
+        }
+      }
+    },
+    {
+      "name": "05 - Autenticar usuário",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Resposta contém token de autenticação', function () {",
+              "  const responseText = pm.response.json();",
+              "  pm.expect(responseText).to.include('Auth_token:');",
+              "  const token = responseText.replace('Auth_token:', '').trim();",
+              "  pm.expect(token).not.to.be.empty;",
+              "  pm.environment.set('authToken', token);",
+              "});",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{passwordEncoded}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/login",
+          "host": ["{{apiUrl}}"],
+          "path": ["login"]
+        }
+      }
+    },
+    {
+      "name": "06 - Adicionar celular ao carrinho",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{$guid}}\",\n  \"cookie\": \"{{authToken}}\",\n  \"prod_id\": \"{{phoneId}}\",\n  \"flag\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/addtocart",
+          "host": ["{{apiUrl}}"],
+          "path": ["addtocart"]
+        }
+      }
+    },
+    {
+      "name": "07 - Adicionar monitor ao carrinho",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{$guid}}\",\n  \"cookie\": \"{{authToken}}\",\n  \"prod_id\": \"{{monitorId}}\",\n  \"flag\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/addtocart",
+          "host": ["{{apiUrl}}"],
+          "path": ["addtocart"]
+        }
+      }
+    },
+    {
+      "name": "08 - Adicionar computador ao carrinho",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{$guid}}\",\n  \"cookie\": \"{{authToken}}\",\n  \"prod_id\": \"{{computerId}}\",\n  \"flag\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/addtocart",
+          "host": ["{{apiUrl}}"],
+          "path": ["addtocart"]
+        }
+      }
+    },
+    {
+      "name": "09 - Consultar carrinho antes da remoção",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Contrato do carrinho é válido', function () {",
+              "  const cart = pm.response.json();",
+              "  pm.expect(cart).to.be.an('object');",
+              "  pm.expect(cart).to.have.property('Items').that.is.an('array');",
+              "  cart.Items.forEach(function (item) {",
+              "    pm.expect(item).to.have.property('id');",
+              "    pm.expect(item).to.have.property('prod_id');",
+              "    pm.expect(item).to.have.property('cookie');",
+              "  });",
+              "  pm.expect(cart.Items).to.have.lengthOf(3);",
+              "  const monitor = cart.Items.find(function (item) { return String(item.prod_id) === String(pm.environment.get('monitorId')); });",
+              "  pm.expect(monitor, 'monitor presente antes da remoção').to.exist;",
+              "  pm.environment.set('monitorCartItemId', monitor.id);",
+              "});",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cookie\": \"{{authToken}}\",\n  \"flag\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/viewcart",
+          "host": ["{{apiUrl}}"],
+          "path": ["viewcart"]
+        }
+      }
+    },
+    {
+      "name": "10 - Remover monitor do carrinho",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('API confirma a remoção', function () { pm.expect(pm.response.text()).to.include('Item deleted'); });",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{monitorCartItemId}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/deleteitem",
+          "host": ["{{apiUrl}}"],
+          "path": ["deleteitem"]
+        }
+      }
+    },
+    {
+      "name": "11 - Validar carrinho após remoção",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Contrato e conteúdo final do carrinho', function () {",
+              "  const cart = pm.response.json();",
+              "  pm.expect(cart).to.have.property('Items').that.is.an('array');",
+              "  const ids = cart.Items.map(function (item) { return String(item.prod_id); });",
+              "  pm.expect(ids).to.have.members([String(pm.environment.get('phoneId')), String(pm.environment.get('computerId'))]);",
+              "  pm.expect(ids).not.to.include(String(pm.environment.get('monitorId')));",
+              "});",
+              "pm.test('Tempo de resposta abaixo de 10 segundos', function () { pm.expect(pm.response.responseTime).to.be.below(10000); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cookie\": \"{{authToken}}\",\n  \"flag\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/viewcart",
+          "host": ["{{apiUrl}}"],
+          "path": ["viewcart"]
+        }
+      }
+    }
+  ]
+}
